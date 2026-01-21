@@ -46,10 +46,23 @@ function getPosts(filter, page) {
 
         console.log("TMDB API URL:", url);
         var response = axios.get(url, { headers: headers });
-        var data = response.data;
-        var posts = [];
 
+        // IMPORTANT: response.data is a STRING, need to parse as JSON
+        var rawData = response.data;
+        console.log("Raw response type:", typeof rawData);
+        console.log("Raw response (first 200 chars):", String(rawData).substring(0, 200));
+
+        var data;
+        if (typeof rawData === 'string') {
+            data = JSON.parse(rawData);
+        } else {
+            data = rawData;
+        }
+
+        var posts = [];
         var results = data.results || [];
+        console.log("Found", results.length, "results from TMDB");
+
         for (var i = 0; i < results.length; i++) {
             var item = results[i];
             var mediaType = item.media_type || (filter.indexOf("tv") !== -1 ? "tv" : "movie");
@@ -66,7 +79,7 @@ function getPosts(filter, page) {
             }
         }
 
-        console.log("Found", posts.length, "posts from TMDB");
+        console.log("Returning", posts.length, "posts");
         return posts;
 
     } catch (err) {
@@ -83,10 +96,19 @@ function getSearchPosts(query, page) {
             "&query=" + encodeURIComponent(query) + "&page=" + page;
 
         var response = axios.get(url, { headers: headers });
-        var data = response.data;
-        var posts = [];
 
+        // Parse JSON string
+        var rawData = response.data;
+        var data;
+        if (typeof rawData === 'string') {
+            data = JSON.parse(rawData);
+        } else {
+            data = rawData;
+        }
+
+        var posts = [];
         var results = data.results || [];
+
         for (var i = 0; i < results.length; i++) {
             var item = results[i];
             var mediaType = item.media_type;
