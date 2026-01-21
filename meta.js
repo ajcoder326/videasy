@@ -11,6 +11,15 @@ var headers = {
     "Accept": "application/json"
 };
 
+// Helper to parse JSON response from axios
+function parseResponse(response) {
+    var rawData = response.data;
+    if (typeof rawData === 'string') {
+        return JSON.parse(rawData);
+    }
+    return rawData;
+}
+
 function getMetaData(link) {
     console.log("Videasy getMetaData:", link);
 
@@ -28,14 +37,17 @@ function getMetaData(link) {
 
         // Fetch details from TMDB API
         var url = TMDB_API_BASE + "/" + mediaType + "/" + tmdbId + "?api_key=" + TMDB_API_KEY;
+        console.log("Fetching:", url);
         var response = axios.get(url, { headers: headers });
-        var data = response.data;
+        var data = parseResponse(response);
+
+        console.log("Got data for:", data.title || data.name);
 
         var title = data.title || data.name || "Unknown";
         var poster = data.poster_path ? TMDB_IMAGE_BASE + data.poster_path : "";
         var backdrop = data.backdrop_path ? TMDB_BACKDROP_BASE + data.backdrop_path : "";
         var description = data.overview || "";
-        var rating = data.vote_average ? data.vote_average.toFixed(1) : "";
+        var rating = data.vote_average ? String(data.vote_average.toFixed(1)) : "";
         var year = "";
 
         if (data.release_date) {
@@ -67,7 +79,7 @@ function getMetaData(link) {
         } else {
             // For TV shows, fetch seasons and episodes
             var seasons = data.seasons || [];
-            var seasonData = [];
+            console.log("Found", seasons.length, "seasons");
 
             for (var s = 0; s < seasons.length; s++) {
                 var season = seasons[s];
@@ -80,9 +92,11 @@ function getMetaData(link) {
                 var seasonLinks = [];
                 try {
                     var seasonUrl = TMDB_API_BASE + "/tv/" + tmdbId + "/season/" + seasonNum + "?api_key=" + TMDB_API_KEY;
+                    console.log("Fetching season:", seasonNum);
                     var seasonResponse = axios.get(seasonUrl, { headers: headers });
-                    var seasonInfo = seasonResponse.data;
+                    var seasonInfo = parseResponse(seasonResponse);
                     var episodes = seasonInfo.episodes || [];
+                    console.log("Season", seasonNum, "has", episodes.length, "episodes");
 
                     for (var e = 0; e < episodes.length; e++) {
                         var ep = episodes[e];
@@ -96,7 +110,7 @@ function getMetaData(link) {
                         });
                     }
                 } catch (err) {
-                    console.log("Failed to fetch season details, using default episodes");
+                    console.log("Failed to fetch season details, using default episodes:", err);
                     // Fallback: create episode links without titles
                     for (var e = 1; e <= episodeCount; e++) {
                         seasonLinks.push({
@@ -116,16 +130,16 @@ function getMetaData(link) {
             }
         }
 
+        console.log("Returning metadata with", linkList.length, "link groups");
+
         return {
             title: title,
-            poster: poster,
-            backdrop: backdrop,
-            description: description,
+            image: poster,
+            synopsis: description,
             type: mediaType === "tv" ? "series" : "movie",
             rating: rating,
             year: year,
-            genres: genres.join(", "),
-            tmdbId: tmdbId,
+            tags: genres,
             linkList: linkList
         };
 
