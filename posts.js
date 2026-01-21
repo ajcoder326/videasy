@@ -14,13 +14,34 @@ function getPosts(filter, page) {
     console.log("Videasy getPosts:", filter, "page:", page);
 
     try {
-        var url = TMDB_API_BASE + "/" + filter;
+        var url = "";
 
-        // Add API key and page
-        if (url.indexOf("?") !== -1) {
-            url = url + "&api_key=" + TMDB_API_KEY + "&page=" + page;
+        // Parse filter to build TMDB API URL
+        if (filter === "trending_day") {
+            url = TMDB_API_BASE + "/trending/all/day?api_key=" + TMDB_API_KEY + "&page=" + page;
+        } else if (filter === "trending_week") {
+            url = TMDB_API_BASE + "/trending/all/week?api_key=" + TMDB_API_KEY + "&page=" + page;
+        } else if (filter === "movie_popular") {
+            url = TMDB_API_BASE + "/movie/popular?api_key=" + TMDB_API_KEY + "&page=" + page;
+        } else if (filter === "tv_popular") {
+            url = TMDB_API_BASE + "/tv/popular?api_key=" + TMDB_API_KEY + "&page=" + page;
+        } else if (filter === "movie_top_rated") {
+            url = TMDB_API_BASE + "/movie/top_rated?api_key=" + TMDB_API_KEY + "&page=" + page;
+        } else if (filter === "tv_top_rated") {
+            url = TMDB_API_BASE + "/tv/top_rated?api_key=" + TMDB_API_KEY + "&page=" + page;
+        } else if (filter === "movie_now_playing") {
+            url = TMDB_API_BASE + "/movie/now_playing?api_key=" + TMDB_API_KEY + "&page=" + page;
+        } else if (filter === "movie_upcoming") {
+            url = TMDB_API_BASE + "/movie/upcoming?api_key=" + TMDB_API_KEY + "&page=" + page;
+        } else if (filter.indexOf("genre_") === 0) {
+            // Genre filter: genre_28_movie or genre_35_tv
+            var parts = filter.split("_");
+            var genreId = parts[1];
+            var mediaType = parts[2];
+            url = TMDB_API_BASE + "/discover/" + mediaType + "?api_key=" + TMDB_API_KEY + "&with_genres=" + genreId + "&page=" + page;
         } else {
-            url = url + "?api_key=" + TMDB_API_KEY + "&page=" + page;
+            // Default to trending
+            url = TMDB_API_BASE + "/trending/all/day?api_key=" + TMDB_API_KEY + "&page=" + page;
         }
 
         console.log("TMDB API URL:", url);
@@ -40,7 +61,7 @@ function getPosts(filter, page) {
                 posts.push({
                     title: title,
                     link: "videasy://" + mediaType + "/" + id,
-                    thumbnail: TMDB_IMAGE_BASE + posterPath
+                    image: TMDB_IMAGE_BASE + posterPath
                 });
             }
         }
@@ -81,7 +102,7 @@ function getSearchPosts(query, page) {
                 posts.push({
                     title: title,
                     link: "videasy://" + mediaType + "/" + id,
-                    thumbnail: TMDB_IMAGE_BASE + posterPath
+                    image: TMDB_IMAGE_BASE + posterPath
                 });
             }
         }
