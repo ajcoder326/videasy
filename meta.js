@@ -67,13 +67,14 @@ function getMetaData(link) {
         var linkList = [];
 
         if (mediaType === "movie") {
-            // For movies, just one play link
+            // For movies - single play button with directLinks
             linkList.push({
                 title: "Play Movie",
-                links: [{
+                quality: "HD",
+                directLinks: [{
                     title: "Videasy Player",
                     link: "videasy://play/movie/" + tmdbId,
-                    quality: "HD"
+                    type: "movie"
                 }]
             });
         } else {
@@ -89,7 +90,7 @@ function getMetaData(link) {
                 var episodeCount = season.episode_count || 10;
 
                 // Fetch season details for episode info
-                var seasonLinks = [];
+                var directLinks = [];
                 try {
                     var seasonUrl = TMDB_API_BASE + "/tv/" + tmdbId + "/season/" + seasonNum + "?api_key=" + TMDB_API_KEY;
                     console.log("Fetching season:", seasonNum);
@@ -103,28 +104,29 @@ function getMetaData(link) {
                         var epNum = ep.episode_number;
                         var epTitle = ep.name || ("Episode " + epNum);
 
-                        seasonLinks.push({
+                        directLinks.push({
                             title: "E" + epNum + ": " + epTitle,
                             link: "videasy://play/tv/" + tmdbId + "/" + seasonNum + "/" + epNum,
-                            quality: "HD"
+                            type: "series"
                         });
                     }
                 } catch (err) {
                     console.log("Failed to fetch season details, using default episodes:", err);
                     // Fallback: create episode links without titles
                     for (var e = 1; e <= episodeCount; e++) {
-                        seasonLinks.push({
+                        directLinks.push({
                             title: "Episode " + e,
                             link: "videasy://play/tv/" + tmdbId + "/" + seasonNum + "/" + e,
-                            quality: "HD"
+                            type: "series"
                         });
                     }
                 }
 
-                if (seasonLinks.length > 0) {
+                if (directLinks.length > 0) {
                     linkList.push({
                         title: "Season " + seasonNum,
-                        links: seasonLinks
+                        quality: episodeCount + " Episodes",
+                        directLinks: directLinks
                     });
                 }
             }
@@ -135,6 +137,8 @@ function getMetaData(link) {
         return {
             title: title,
             image: poster,
+            background: backdrop,
+            poster: poster,
             synopsis: description,
             type: mediaType === "tv" ? "series" : "movie",
             rating: rating,
