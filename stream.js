@@ -3,6 +3,10 @@
 
 var VIDEASY_PLAYER = 'https://player.videasy.net';
 
+// Player customization - purple theme with all features
+var PLAYER_PARAMS = 'color=8B5CF6&overlay=true';
+var TV_PARAMS = 'color=8B5CF6&nextEpisode=true&episodeSelector=true&autoplayNextEpisode=true&overlay=true';
+
 function getStreams(link, type) {
     console.log("Videasy getStreams:", link, "type:", type);
 
@@ -17,9 +21,10 @@ function getStreams(link, type) {
             var tmdbId = movieMatch[1];
             console.log("Movie stream for TMDB ID:", tmdbId);
 
+            // Hindi audio server (default for Indian users)
             streams.push({
-                server: "Videasy",
-                link: VIDEASY_PLAYER + "/movie/" + tmdbId + "?color=8B5CF6",
+                server: "Videasy (Hindi)",
+                link: VIDEASY_PLAYER + "/movie/" + tmdbId + "?" + PLAYER_PARAMS,
                 type: "webview",
                 quality: "HD"
             });
@@ -30,10 +35,10 @@ function getStreams(link, type) {
             var episode = tvMatch[3];
             console.log("TV stream - ID:", tmdbId, "S:", season, "E:", episode);
 
+            // Hindi audio server (default for Indian users)
             streams.push({
-                server: "Videasy",
-                link: VIDEASY_PLAYER + "/tv/" + tmdbId + "/" + season + "/" + episode +
-                    "?color=8B5CF6&nextEpisode=true&episodeSelector=true",
+                server: "Videasy (Hindi)",
+                link: VIDEASY_PLAYER + "/tv/" + tmdbId + "/" + season + "/" + episode + "?" + TV_PARAMS,
                 type: "webview",
                 quality: "HD"
             });

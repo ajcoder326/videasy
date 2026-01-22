@@ -1,15 +1,19 @@
 // Videasy Catalog Module
-// Returns categories for browsing using TMDB data
+// Returns categories for browsing - focused on Indian content
 
 var catalog = [
-    { title: "Trending Today", filter: "trending_day" },
-    { title: "Trending This Week", filter: "trending_week" },
+    { title: "Trending in India", filter: "trending_india" },
+    { title: "Bollywood Movies", filter: "bollywood" },
+    { title: "Hindi Web Series", filter: "hindi_tv" },
+    { title: "South Indian Movies", filter: "south_movies" },
+    { title: "Tamil Movies", filter: "tamil" },
+    { title: "Telugu Movies", filter: "telugu" },
+    { title: "Malayalam Movies", filter: "malayalam" },
+    { title: "Hollywood Hindi", filter: "hollywood_hindi" },
     { title: "Popular Movies", filter: "movie_popular" },
     { title: "Popular TV Shows", filter: "tv_popular" },
     { title: "Top Rated Movies", filter: "movie_top_rated" },
-    { title: "Top Rated TV", filter: "tv_top_rated" },
-    { title: "Now Playing", filter: "movie_now_playing" },
-    { title: "Upcoming Movies", filter: "movie_upcoming" }
+    { title: "Trending Today", filter: "trending_day" }
 ];
 
 var genres = [
@@ -19,9 +23,8 @@ var genres = [
     { title: "Horror Movies", filter: "genre_27_movie" },
     { title: "Romance Movies", filter: "genre_10749_movie" },
     { title: "Thriller Movies", filter: "genre_53_movie" },
-    { title: "Sci-Fi Movies", filter: "genre_878_movie" },
-    { title: "Animation", filter: "genre_16_movie" },
-    { title: "Fantasy Movies", filter: "genre_14_movie" },
+    { title: "Crime Movies", filter: "genre_80_movie" },
+    { title: "Family Movies", filter: "genre_10751_movie" },
     { title: "Action TV", filter: "genre_10759_tv" },
     { title: "Comedy TV", filter: "genre_35_tv" },
     { title: "Crime TV", filter: "genre_80_tv" },

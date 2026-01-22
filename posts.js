@@ -1,5 +1,5 @@
 // Videasy Posts Module
-// Fetches movie/TV listings from TMDB API
+// Fetches movie/TV listings from TMDB API - focused on Indian content
 
 var TMDB_API_KEY = '66df14f403f8fa60c04cbe8f3f84112a';
 var TMDB_API_BASE = 'https://api.themoviedb.org/3';
@@ -16,8 +16,29 @@ function getPosts(filter, page) {
     try {
         var url = "";
 
-        // Parse filter to build TMDB API URL
-        if (filter === "trending_day") {
+        // Parse filter to build TMDB API URL - India focused
+        if (filter === "trending_india") {
+            // Trending in India region
+            url = TMDB_API_BASE + "/trending/all/day?api_key=" + TMDB_API_KEY + "&region=IN&page=" + page;
+        } else if (filter === "bollywood") {
+            // Hindi language movies from India
+            url = TMDB_API_BASE + "/discover/movie?api_key=" + TMDB_API_KEY + "&with_original_language=hi&sort_by=popularity.desc&page=" + page;
+        } else if (filter === "hindi_tv") {
+            // Hindi TV shows
+            url = TMDB_API_BASE + "/discover/tv?api_key=" + TMDB_API_KEY + "&with_original_language=hi&sort_by=popularity.desc&page=" + page;
+        } else if (filter === "south_movies") {
+            // South Indian movies (Tamil, Telugu, Malayalam, Kannada)
+            url = TMDB_API_BASE + "/discover/movie?api_key=" + TMDB_API_KEY + "&with_original_language=ta|te|ml|kn&sort_by=popularity.desc&page=" + page;
+        } else if (filter === "tamil") {
+            url = TMDB_API_BASE + "/discover/movie?api_key=" + TMDB_API_KEY + "&with_original_language=ta&sort_by=popularity.desc&page=" + page;
+        } else if (filter === "telugu") {
+            url = TMDB_API_BASE + "/discover/movie?api_key=" + TMDB_API_KEY + "&with_original_language=te&sort_by=popularity.desc&page=" + page;
+        } else if (filter === "malayalam") {
+            url = TMDB_API_BASE + "/discover/movie?api_key=" + TMDB_API_KEY + "&with_original_language=ml&sort_by=popularity.desc&page=" + page;
+        } else if (filter === "hollywood_hindi") {
+            // Popular Hollywood movies (for Hindi dub)
+            url = TMDB_API_BASE + "/movie/popular?api_key=" + TMDB_API_KEY + "&region=IN&page=" + page;
+        } else if (filter === "trending_day") {
             url = TMDB_API_BASE + "/trending/all/day?api_key=" + TMDB_API_KEY + "&page=" + page;
         } else if (filter === "trending_week") {
             url = TMDB_API_BASE + "/trending/all/week?api_key=" + TMDB_API_KEY + "&page=" + page;
@@ -30,9 +51,9 @@ function getPosts(filter, page) {
         } else if (filter === "tv_top_rated") {
             url = TMDB_API_BASE + "/tv/top_rated?api_key=" + TMDB_API_KEY + "&page=" + page;
         } else if (filter === "movie_now_playing") {
-            url = TMDB_API_BASE + "/movie/now_playing?api_key=" + TMDB_API_KEY + "&page=" + page;
+            url = TMDB_API_BASE + "/movie/now_playing?api_key=" + TMDB_API_KEY + "&region=IN&page=" + page;
         } else if (filter === "movie_upcoming") {
-            url = TMDB_API_BASE + "/movie/upcoming?api_key=" + TMDB_API_KEY + "&page=" + page;
+            url = TMDB_API_BASE + "/movie/upcoming?api_key=" + TMDB_API_KEY + "&region=IN&page=" + page;
         } else if (filter.indexOf("genre_") === 0) {
             // Genre filter: genre_28_movie or genre_35_tv
             var parts = filter.split("_");
@@ -40,18 +61,15 @@ function getPosts(filter, page) {
             var mediaType = parts[2];
             url = TMDB_API_BASE + "/discover/" + mediaType + "?api_key=" + TMDB_API_KEY + "&with_genres=" + genreId + "&page=" + page;
         } else {
-            // Default to trending
-            url = TMDB_API_BASE + "/trending/all/day?api_key=" + TMDB_API_KEY + "&page=" + page;
+            // Default to trending in India
+            url = TMDB_API_BASE + "/trending/all/day?api_key=" + TMDB_API_KEY + "&region=IN&page=" + page;
         }
 
         console.log("TMDB API URL:", url);
         var response = axios.get(url, { headers: headers });
 
-        // IMPORTANT: response.data is a STRING, need to parse as JSON
+        // response.data is a STRING, need to parse as JSON
         var rawData = response.data;
-        console.log("Raw response type:", typeof rawData);
-        console.log("Raw response (first 200 chars):", String(rawData).substring(0, 200));
-
         var data;
         if (typeof rawData === 'string') {
             data = JSON.parse(rawData);
@@ -92,9 +110,11 @@ function getSearchPosts(query, page) {
     console.log("Videasy search:", query, "page:", page);
 
     try {
+        // Search with India region preference
         var url = TMDB_API_BASE + "/search/multi?api_key=" + TMDB_API_KEY +
-            "&query=" + encodeURIComponent(query) + "&page=" + page;
+            "&query=" + encodeURIComponent(query) + "&page=" + page + "&region=IN&include_adult=false";
 
+        console.log("Search URL:", url);
         var response = axios.get(url, { headers: headers });
 
         // Parse JSON string
@@ -108,6 +128,7 @@ function getSearchPosts(query, page) {
 
         var posts = [];
         var results = data.results || [];
+        console.log("Search API returned", results.length, "results");
 
         for (var i = 0; i < results.length; i++) {
             var item = results[i];
@@ -120,13 +141,12 @@ function getSearchPosts(query, page) {
             var posterPath = item.poster_path;
             var id = item.id;
 
-            if (posterPath && id) {
-                posts.push({
-                    title: title,
-                    link: "videasy://" + mediaType + "/" + id,
-                    image: TMDB_IMAGE_BASE + posterPath
-                });
-            }
+            // Include items even without poster for better search results
+            posts.push({
+                title: title,
+                link: "videasy://" + mediaType + "/" + id,
+                image: posterPath ? TMDB_IMAGE_BASE + posterPath : ""
+            });
         }
 
         console.log("Search found", posts.length, "results");
