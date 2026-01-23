@@ -2,6 +2,7 @@
 // Returns categories for browsing - focused on Indian content
 
 var catalog = [
+    { title: "🎬 In Theaters Now", filter: "movie_now_playing" },
     { title: "Trending in India", filter: "trending_india" },
     { title: "Latest Bollywood", filter: "bollywood" },
     { title: "Hindi Web Series", filter: "hindi_tv" },
@@ -14,7 +15,6 @@ var catalog = [
     { title: "Popular Web Series", filter: "tv_popular" },
     { title: "Top Rated Movies", filter: "movie_top_rated" },
     { title: "Top Rated Series", filter: "tv_top_rated" },
-    { title: "Now Playing", filter: "movie_now_playing" },
     { title: "Trending Today", filter: "trending_day" }
 ];
 
